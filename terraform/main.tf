@@ -93,7 +93,6 @@ resource "aws_instance" "ecs_instance_1" {
   )
 }
 
-# Create the second EC2 instance
 resource "aws_instance" "ecs_instance_2" {
   ami                    = "ami-0e593d2b811299b15" # Amazon Linux 2 AMI
   instance_type          = "t2.micro"
@@ -121,14 +120,11 @@ resource "aws_instance" "ecs_instance_2" {
 
               # Clone your Node.js app from the Git repository (replace with your repo)
               cd /home/ec2-user
-              git clone https://github.com/giovanni-pe/microservices.git nodeapp
-              cd nodeapp/charlie-service
-
-              # Build the Docker image
-              sudo docker build -t nodeapp .
+              git clone https://github.com/giovanni-pe/trabajofinal.git nodeapp
+              cd nodeapp/obs
 
               # Run the Docker container
-              sudo docker run -d -p 80:3000 nodeapp
+              sudo docker-compose up -d
               EOF
   )
 }
@@ -263,14 +259,13 @@ resource "aws_api_gateway_integration_response" "instance_1_integration_response
   }
 }
 
-# Define the resource for Instance 1.5 ("/instance1_5")
+
 resource "aws_api_gateway_resource" "instance_15_resource" {
   rest_api_id = aws_api_gateway_rest_api.api_gateway.id
   parent_id   = aws_api_gateway_rest_api.api_gateway.root_resource_id
   path_part   = "instance1_5"
 }
 
-# Define the GET method for Instance 1.5
 resource "aws_api_gateway_method" "instance_15_get_method" {
   rest_api_id   = aws_api_gateway_rest_api.api_gateway.id
   resource_id   = aws_api_gateway_resource.instance_15_resource.id
@@ -289,7 +284,7 @@ resource "aws_api_gateway_method_response" "instance_15_method_response" {
     depends_on = [ aws_api_gateway_method.instance_15_get_method ]
 }
 
-# Integrate API Gateway with Instance 1.5
+
 resource "aws_api_gateway_integration" "instance_15_integration" {
   rest_api_id = aws_api_gateway_rest_api.api_gateway.id
   resource_id = aws_api_gateway_resource.instance_15_resource.id

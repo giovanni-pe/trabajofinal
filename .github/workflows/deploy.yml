@@ -7,10 +7,10 @@ on:
 
 env:
   AWS_REGION: us-east-2
-  BUCKET_NAME: my-frontend-bucket2
-  EC2_HOST_1: 18.226.34.74
-  EC2_HOST_2: 3.128.181.222
-  REPO_URL: https://github.com/giovanni-pe/microservices.git
+  BUCKET_NAME: my-frontend-bucket3
+  EC2_HOST_1: 3.135.189.112
+  EC2_HOST_2: 18.220.111.26
+  REPO_URL: https://github.com/giovanni-pe/trabajofinal.git
   
 jobs:
   install-dependencies:
@@ -131,13 +131,12 @@ jobs:
             # Clone your Node.js app from the Git repository (replace with your repo)
             cd /home/ec2-user
             git clone https://github.com/giovanni-pe/microservices.git nodeapp
-            cd nodeapp/conferencias
+            cd nodeapp/obs
 
             # Build the Docker image
-            sudo docker build -t nodeapp .
+            sudo docker-compose up 
 
-            # Run the Docker container
-            sudo docker run -d -p 80:3000 nodeapp
+           
           EOF
 
       - name: Clean up SSH key
@@ -160,5 +159,5 @@ jobs:
 
       - name: Sync Frontend to S3
         run: |
-          aws s3 sync frontend/ s3://${{ env.BUCKET_NAME }} \
+          aws s3 sync host/dist/host s3://${{ env.BUCKET_NAME }} \
             --acl public-read
