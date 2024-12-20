@@ -135,7 +135,7 @@ jobs:
 
             # Clone your Node.js app from the Git repository (replace with your repo)
             cd /home/ec2-user
-            git clone https://github.com/giovanni-pe/microservices.git nodeapp
+            git clone https://github.com/giovanni-pe/trabajofinal.git nodeapp
             cd nodeapp/obs
 
             # Build the Docker image
