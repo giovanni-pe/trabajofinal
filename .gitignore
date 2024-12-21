@@ -1,12 +1,9 @@
-node_modules/
 terraform/.terraform/
 terraform/tfplan
 terraform/terraform.tfvars
 terraform/.terraform.lock.hcl
 terraform/terraform.tfstate.backup
 terraform/terraform.tfstate
-
-
 terraformDigitalOcean/.terraform/
 terraformDigitalOcean/tfplan
 terraformDigitalOcean/terraform.tfvars

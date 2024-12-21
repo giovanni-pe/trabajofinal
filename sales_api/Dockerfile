@@ -8,8 +8,7 @@ WORKDIR /usr/src/app
 # Copia el archivo package.json y package-lock.json
 COPY package*.json ./
 
-# Instala las dependencias de producción
-RUN npm install  --legacy-peer-deps
+
 
 # Copia el resto del código fuente de la aplicación
 COPY . .
@@ -20,8 +19,6 @@ FROM node:20
 # Establece el directorio de trabajo en el contenedor
 WORKDIR /usr/src/app
 
-# Copia los archivos de la etapa de construcción
-COPY --from=builder /usr/src/app /usr/src/app
 
 # Expone el puerto de la aplicación
 EXPOSE 5000
