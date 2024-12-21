@@ -6,8 +6,8 @@ on:
       - main
 
 env:
-  DO_HOST_1: 159.203.66.31
-  DO_HOST_2: 159.65.185.236
+  DO_HOST_1: 167.71.189.57
+  DO_HOST_2: 167.71.177.91
   REPO_URL: https://github.com/giovanni-pe/trabajofinal.git
 
 jobs:
@@ -62,9 +62,6 @@ jobs:
             git clone ${{ env.REPO_URL }} /root/nodeapp
 
             echo "Running Docker Compose..."
-            sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep tag_name | cut -d '"' -f 4)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            sudo chmod +x /usr/local/bin/docker-compose
-            sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
             sudo docker-compose up --build -d
           EOF
 
