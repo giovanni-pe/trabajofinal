@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI/CD Pipeline for DigitalOcean
 
 on:
   push:
@@ -6,11 +6,10 @@ on:
       - main
 
 env:
-  AWS_REGION: us-east-2
-  EC2_HOST_1: 3.135.189.112
-  EC2_HOST_2: 18.220.111.26
+  DO_HOST_1: 159.203.66.31
+  DO_HOST_2: 159.65.185.236
   REPO_URL: https://github.com/giovanni-pe/trabajofinal.git
-  
+
 jobs:
   install-dependencies:
     runs-on: ubuntu-latest
@@ -34,121 +33,71 @@ jobs:
       - name: Install dependencies
         run: |
           echo "Running as user $(whoami)"
-          echo "INSTALLING NPM ......"
+          echo "Installing npm dependencies..."
           npm install
 
   deploy-private:
     runs-on: ubuntu-latest
     needs: install-dependencies
     steps:
-      - name: Set up SSH key
+      - name: Install sshpass
+        run: sudo apt-get install sshpass
+
+      - name: Deploy to Private Host
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
-          chmod 600 ec2_key.pem
-      - name: Delete previous distribution on EC2
-        run: |
-          ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@"${{ env.EC2_HOST_1 }}" << 'EOF'
+          sshpass -p "${{ secrets.DROPLET_PASSWORD }}" ssh -o StrictHostKeyChecking=no root@"${{ env.DO_HOST_1 }}" << 'EOF'
             #!/bin/bash
 
-            # Stop all running Docker containers
-            echo "Stopping all Docker containers..."
-            sudo docker stop $(sudo docker ps -q) || echo "No running containers to stop."
+            echo "Stopping running containers..."
+            sudo docker stop $(sudo docker ps -q) || echo "No running containers."
 
-            # Remove all Docker containers
-            echo "Removing all Docker containers..."
+            echo "Removing existing containers..."
             sudo docker rm $(sudo docker ps -aq) || echo "No containers to remove."
 
-            # Remove all Docker images
-            echo "Removing all Docker images..."
-            sudo docker rmi $(sudo docker images -q) || echo "No Docker images to remove."
+            echo "Removing Docker images..."
+            sudo docker rmi $(sudo docker images -q) || echo "No images to remove."
 
-            # Clean up old application directory
-            echo "Removing the old application directory..."
-            sudo rm -rf /home/ec2-user/nodeapp
+            echo "Cloning the repository..."
+            sudo rm -rf /root/nodeapp
+            git clone ${{ env.REPO_URL }} /root/nodeapp
 
-            # List contents of the application directory for verification
-            echo "Listing /home/ec2-user/:"
-            ls /home/ec2-user/
-          EOF
-
-      - name: Build and Run Docker Container on EC2
-        run: |
-          ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@"${{ env.EC2_HOST_1 }}" << 'EOF'
-            #!/bin/bash
-
-            # Clone your Node.js app from the Git repository (replace with your repo)
-            cd /home/ec2-user
-            git clone ${{ env.REPO_URL }} nodeapp
-            cd nodeapp
-
-            # Run the services with Docker Compose
-            sudo curl -L "https://github.com/docker/compose/releases/download/$(sudo curl -s https://api.github.com/repos/docker/compose/releases/latest | grep 'tag_name' | cut -d '"' -f 4)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            echo "Running Docker Compose..."
+            cd /root/nodeapp/obs
+            sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep tag_name | cut -d '"' -f 4)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
             sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
-          
-            
             sudo docker-compose up --build -d
           EOF
-
-      - name: Clean up SSH key
-        run: rm ec2_key.pem
 
   deploy-public:
     runs-on: ubuntu-latest
     needs: deploy-private
     steps:
-      - name: Set up SSH key
+      - name: Install sshpass
+        run: sudo apt-get install sshpass
+
+      - name: Deploy to Public Host
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
-          chmod 600 ec2_key.pem
-      - name: Delete previous distribution on EC2  
-        run: |
-          ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@"${{ env.EC2_HOST_2 }}" << 'EOF'
+          sshpass -p "${{ secrets.DROPLET_PASSWORD }}" ssh -o StrictHostKeyChecking=no root@"${{ env.DO_HOST_2 }}" << 'EOF'
             #!/bin/bash
 
-            # Stop all running Docker containers
-            echo "Stopping all Docker containers..."
-            sudo docker stop $(sudo docker ps -q) || echo "No running containers to stop."
+            echo "Stopping running containers..."
+            sudo docker stop $(sudo docker ps -q) || echo "No running containers."
 
-            # Remove all Docker containers
-            echo "Removing all Docker containers..."
+            echo "Removing existing containers..."
             sudo docker rm $(sudo docker ps -aq) || echo "No containers to remove."
 
-            # Remove all Docker images
-            echo "Removing all Docker images..."
-            sudo docker rmi $(sudo docker images -q) || echo "No Docker images to remove."
+            echo "Removing Docker images..."
+            sudo docker rmi $(sudo docker images -q) || echo "No images to remove."
 
-            # Clean up old application directory
-            echo "Removing the old application directory..."
-            sudo rm -rf /home/ec2-user/nodeapp
+            echo "Cloning the repository..."
+            sudo rm -rf /root/nodeapp
+            git clone ${{ env.REPO_URL }} /root/nodeapp
 
-            # List contents of the application directory for verification
-            echo "Listing /home/ec2-user/:"
-            ls /home/ec2-user/
-          EOF
-
-      - name: Build and Run Docker Container on EC2
-        run: |
-          ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@"${{ env.EC2_HOST_2 }}" << 'EOF'
-            #!/bin/bash
-
-            # Clone your Node.js app from the Git repository (replace with your repo)
-            cd /home/ec2-user
-            git clone https://github.com/giovanni-pe/trabajofinal.git nodeapp
-            cd nodeapp/obs
-
-            # Build the Docker image
-            
-            # Run the services with Docker Compose
-            sudo curl -L "https://github.com/docker/compose/releases/download/$(sudo curl -s https://api.github.com/repos/docker/compose/releases/latest | grep 'tag_name' | cut -d '"' -f 4)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            echo "Running Docker Compose..."
+            cd /root/nodeapp/obs
+            sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep tag_name | cut -d '"' -f 4)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
             sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
             sudo docker-compose up --build -d
-
-           
           EOF
-
-      - name: Clean up SSH key
-        run: rm ec2_key.pem
-
-  
