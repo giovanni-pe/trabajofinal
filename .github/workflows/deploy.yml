@@ -7,7 +7,6 @@ on:
 
 env:
   AWS_REGION: us-east-2
-  BUCKET_NAME: my-frontend-bucket3
   EC2_HOST_1: 3.135.189.112
   EC2_HOST_2: 18.220.111.26
   REPO_URL: https://github.com/giovanni-pe/trabajofinal.git
@@ -87,7 +86,7 @@ jobs:
             sudo chmod +x /usr/local/bin/docker-compose
             sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
           
-            sudo docker-compose up -d
+            
             sudo docker-compose up --build -d
           EOF
 
@@ -144,7 +143,7 @@ jobs:
             sudo curl -L "https://github.com/docker/compose/releases/download/$(sudo curl -s https://api.github.com/repos/docker/compose/releases/latest | grep 'tag_name' | cut -d '"' -f 4)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
             sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
-            sudo docker-compose up 
+            sudo docker-compose up --build -d
 
            
           EOF
@@ -152,22 +151,4 @@ jobs:
       - name: Clean up SSH key
         run: rm ec2_key.pem
 
-  frontend:
-    name: Deploy Frontend (S3 Static Website)
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Sync Frontend to S3
-        run: |
-          aws s3 sync host/dist/host s3://${{ env.BUCKET_NAME }} \
-            --acl public-read
+  
