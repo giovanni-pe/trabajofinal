@@ -60,7 +60,7 @@ jobs:
             echo "Cloning the repository..."
             sudo rm -rf /home/nodeapp
             git clone ${{ env.REPO_URL }} /home/nodeapp
-
+            cd /home/nodeapp
             echo "Running Docker Compose..."
             sudo docker-compose up --build -d
           EOF
