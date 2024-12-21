@@ -28,7 +28,7 @@ Este proyecto está diseñado para implementar una solución escalable y modular
 
 Aquí tienes un video que detalla la arquitectura, los componentes y el flujo de trabajo del proyecto:
 
-[![Video Explicativo del Proyecto](https://youtu.be/8sJ8AtnUwko)
+[![Video Explicativo del Proyecto](https://youtu.be/8sJ8AtnUwko?si=uu5JRFMoLWrvXunT)
 
 > **Nota:** Haz clic en la imagen para abrir el video en YouTube.
 
