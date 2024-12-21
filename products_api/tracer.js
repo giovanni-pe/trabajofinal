@@ -7,7 +7,7 @@ const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-http')
 
 // Configura el exportador OTLP para HTTP
 const traceExporter = new OTLPTraceExporter({
-  url: 'http://localhost:4318/v1/traces', // Dirección del colector OTLP
+  url: 'http://167.71.177.91:4318/v1/traces', // Dirección del colector OTLP
 });
 
 // Configura los recursos del servicio
