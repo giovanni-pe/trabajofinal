@@ -27,5 +27,5 @@ EXPOSE 5000
 ENV OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317/v1/traces
 ENV OTEL_SERVICE_NAME=sales-api
 
-# Comando para iniciar la aplicación
+
 CMD ["node", "app.js"]
