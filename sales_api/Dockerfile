@@ -5,22 +5,10 @@ FROM node:20 AS builder
 # Establece el directorio de trabajo en el contenedor
 WORKDIR /usr/src/app
 
-# Copia el archivo package.json y package-lock.json
-COPY package*.json ./
-
-
 
 # Copia el resto del código fuente de la aplicación
 COPY . .
 
-# Etapa 2: Imagen de ejecución
-FROM node:20
-
-# Establece el directorio de trabajo en el contenedor
-WORKDIR /usr/src/app
-
-
-# Expone el puerto de la aplicación
 EXPOSE 5000
 
 # Establece la variable de entorno para la URL del colector OTLP
